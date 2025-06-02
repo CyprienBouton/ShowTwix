@@ -1,0 +1,88 @@
+import streamlit as st
+import time
+import plotly.graph_objects as go
+import numpy as np
+
+from utils.twix_dataframe import build_line_dataframe
+
+def udpate_trigger_method():
+    st.session_state.df = build_line_dataframe(
+        st.session_state.twix, 
+        trigger_method=st.session_state.trigger_method
+    )
+
+def plot_fig(df, marker_size, is3D, show_flags):
+    y = df.Par if is3D else df.Sli
+    ylabel = 'Partition' if is3D else 'Slice'
+    
+    # Prepare hover data
+    base_customdata = np.vstack([[ylabel] * len(df), df.RR]).T
+    customdata = base_customdata if not show_flags \
+        else np.hstack([base_customdata, df[['Flags']].values])
+    hovertemplate = (
+        f'Line: %{{x}}<br>{ylabel}: %{{y}}<br>RR: %{{customdata[1]:.2f}} s' +
+        ('<br>Flags: %{customdata[2]}' if show_flags else '') +
+        '<extra></extra>'
+    )
+
+
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(
+        x=df.Lin,
+        y=y,
+        mode='markers',
+        marker=dict(size=marker_size, color=df.RR, colorscale='jet',
+                    colorbar=dict(title='RR (s)'),
+                    cmin=df.RR.min(), cmax=df.RR.max()),
+        customdata=customdata,
+        hovertemplate=hovertemplate,
+        showlegend=False,
+    ))
+    fig.update_layout(
+        xaxis=dict(title="Line"),
+        yaxis=dict(title=ylabel),
+        height=800, width=800,
+        template='simple_white'
+    )
+    return fig
+
+def kspace_RRs():
+    st.header("K-Space Timing Map")
+    if 'df' not in st.session_state or 'twix' not in st.session_state:
+        st.error("❗ Please upload a raw data file  first.")
+        return
+    
+    twix = st.session_state.twix
+    df = st.session_state.df
+    
+    if 'pmu' not in st.session_state.twix[-1]:
+        st.error("❗ No PMU data found in the Twix file. \
+            Please ensure the raw data contains physiological data.")
+        return
+    
+    # Choose trigger method
+    pmu_data = twix[-1]['pmu']
+    default_keys = [
+        key for key in pmu_data.signal 
+        if not key.startswith('LEARN_') 
+        and np.ptp(pmu_data.signal[key])>0
+    ]
+    selected = st.selectbox(
+        "Choose a trigger method:", 
+        default_keys,
+        key='trigger_method',
+        on_change=udpate_trigger_method
+    )
+    
+    if 'RR' not in df.columns:
+        st.error(f"❗ Choose another trigger method. Selected: '{selected}'.")
+        return
+            
+    
+    is3D = twix[-1]['hdr']['Config']['Is3D'].lower() == 'true'
+
+    marker_size = st.sidebar.slider("Marker Size", 2, 10, 6)
+    show_flags = st.sidebar.checkbox("Show Flags", value=False)
+
+    fig = plot_fig(df, marker_size, is3D, show_flags)
+    st.plotly_chart(fig, use_container_width=True)
