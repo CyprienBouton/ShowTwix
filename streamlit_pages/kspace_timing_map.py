@@ -6,9 +6,10 @@ import numpy as np
 def plot_fig(df, marker_size, is3D, show_flags):
     y = df.Par if is3D else df.Sli
     ylabel = 'Partition' if is3D else 'Slice'
+    acquisition_times = df.Time - df.Time.min()
     
     # Prepare hover data
-    base_customdata = np.vstack([[ylabel] * len(df), df.Time]).T
+    base_customdata = np.vstack([[ylabel] * len(df), acquisition_times]).T
     customdata = base_customdata if not show_flags \
         else np.hstack([base_customdata, df[['Flags']].values])
     hovertemplate = (
@@ -17,15 +18,14 @@ def plot_fig(df, marker_size, is3D, show_flags):
         '<extra></extra>'
     )
 
-
     fig = go.Figure()
     fig.add_trace(go.Scatter(
         x=df.Lin,
         y=y,
         mode='markers',
-        marker=dict(size=marker_size, color=df.Time, colorscale='jet',
+        marker=dict(size=marker_size, color=acquisition_times, colorscale='jet',
                     colorbar=dict(title='Time (s)'),
-                    cmin=df.Time.min(), cmax=df.Time.max()),
+                    cmin=acquisition_times.min(), cmax=acquisition_times.max()),
         customdata=customdata,
         hovertemplate=hovertemplate,
         showlegend=False,
