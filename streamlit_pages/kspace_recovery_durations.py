@@ -16,11 +16,11 @@ def plot_fig(df, marker_size, is3D, show_flags):
     ylabel = 'Partition' if is3D else 'Slice'
     
     # Prepare hover data
-    base_customdata = np.vstack([[ylabel] * len(df), df.RR]).T
+    base_customdata = np.vstack([[ylabel] * len(df), df.RD]).T
     customdata = base_customdata if not show_flags \
         else np.hstack([base_customdata, df[['Flags']].values])
     hovertemplate = (
-        f'Line: %{{x}}<br>{ylabel}: %{{y}}<br>RR: %{{customdata[1]:.2f}} s' +
+        f'Line: %{{x}}<br>{ylabel}: %{{y}}<br>recovery duration: %{{customdata[1]:.2f}} s' +
         ('<br>Flags: %{customdata[2]}' if show_flags else '') +
         '<extra></extra>'
     )
@@ -31,9 +31,9 @@ def plot_fig(df, marker_size, is3D, show_flags):
         x=df.Lin,
         y=y,
         mode='markers',
-        marker=dict(size=marker_size, color=df.RR, colorscale='jet',
-                    colorbar=dict(title='RR (s)'),
-                    cmin=df.RR.min(), cmax=df.RR.max()),
+        marker=dict(size=marker_size, color=df.RD, colorscale='jet',
+                    colorbar=dict(title='recovery duration (s)'),
+                    cmin=df.RD.min(), cmax=df.RD.max()),
         customdata=customdata,
         hovertemplate=hovertemplate,
         showlegend=False,
@@ -46,7 +46,7 @@ def plot_fig(df, marker_size, is3D, show_flags):
     )
     return fig
 
-def kspace_RRs():
+def kspace_recovery_durations():
     st.header("K-Space Timing Map")
     if 'df' not in st.session_state or 'twix' not in st.session_state:
         st.error("❗ Please upload a raw data file  first.")
@@ -74,7 +74,7 @@ def kspace_RRs():
         on_change=udpate_trigger_method
     )
     
-    if 'RR' not in df.columns:
+    if 'RD' not in df.columns:
         st.error(f"❗ Choose another trigger method. Selected: '{selected}'.")
         return
             
