@@ -1,4 +1,5 @@
 git+https://github.com/CyprienBouton/twixtools.git@up_PMU_syngo_XA#egg=twixtools
+git+https://github.com/CyprienBouton/RecoTwix.git@add_grappa
 dash == 3.0.4
-pandas == 2.2.3
+pandas == 2.3.0
 streamlit == 1.45.1
