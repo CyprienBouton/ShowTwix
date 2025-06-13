@@ -11,7 +11,13 @@ def udpate_trigger_method():
         trigger_method=st.session_state.trigger_method
     )
 
-def plot_fig(df, marker_size, is3D, show_flags):
+def plot_fig(df, marker_size, is3D, show_flags, cmin, cmax):
+    # Set colorbar scale
+    if cmin is None:
+        cmin = df.RD.min()
+    if cmax is None:
+        cmax = df.RD.max()
+    
     y = df.Par if is3D else df.Sli
     ylabel = 'Partition' if is3D else 'Slice'
     
@@ -33,7 +39,7 @@ def plot_fig(df, marker_size, is3D, show_flags):
         mode='markers',
         marker=dict(size=marker_size, color=df.RD, colorscale='jet',
                     colorbar=dict(title='recovery duration (s)'),
-                    cmin=df.RD.min(), cmax=df.RD.max()),
+                    cmin=cmin, cmax=cmax),
         customdata=customdata,
         hovertemplate=hovertemplate,
         showlegend=False,
@@ -84,5 +90,14 @@ def kspace_recovery_durations():
     marker_size = st.sidebar.slider("Marker Size", 2, 10, 6)
     show_flags = st.sidebar.checkbox("Show Flags", value=False)
 
-    fig = plot_fig(df, marker_size, is3D, show_flags)
+    scale_colorbar = st.sidebar.checkbox("Scale colorbar")
+
+    if scale_colorbar:
+        cmin = st.sidebar.slider("Colorbar Min (s)", 0.0, 5.0, 0.4, step=0.1)
+        cmax = st.sidebar.slider("Colorbar Max (s)", 0.5, 10.0, 2.0, step=0.1)
+    else:
+        cmin, cmax = None, None
+
+
+    fig = plot_fig(df, marker_size, is3D, show_flags, cmin, cmax)
     st.plotly_chart(fig, use_container_width=True)
