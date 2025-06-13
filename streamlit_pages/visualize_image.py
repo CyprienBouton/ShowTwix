@@ -113,7 +113,6 @@ def obtain_image():
             st.info("Waiting for PNG file upload...")
             st.stop()  # Wait until file is uploaded
         else:
-            st.success("PNG uploaded successfully.")
             img = Image.open(uploaded_file).convert('L')  # Convert to grayscale
 
             # Convert to 3D if needed (e.g. single-slice volume)
@@ -146,7 +145,6 @@ def obtain_image():
     
     # Step 5: If SENSE reconstruction selected, process accordingly
     elif choice == "SENSE reconstruction with POCS":
-        st.success(f"Selected reconstruction method: {choice}")
         # Call your reconstruction function here
         coil_sens_methods = [
             "Select an option...",
@@ -167,7 +165,6 @@ def obtain_image():
             
     # Step 6: Direct reconstruction
     else:
-        st.success(f"Selected reconstruction method: {choice}")
         # Call your reconstruction function here
         with st.spinner("Reconstructing image..."):
             with open("uploaded_file.dat", "wb") as f:
@@ -265,7 +262,6 @@ def visualize_image():
         img_nii = obtain_image()
         # convert image to RAS coordinates
         st.session_state.img_nii = nib.as_closest_canonical(img_nii)
-        st.success("Image reconstructed!")
     
     # If there is a nifti image show it            
     if st.session_state.img_nii is not None:
@@ -280,7 +276,6 @@ def visualize_image():
         if st.button("Save image"):
             # Save to in-memory buffer
             st.session_state.image_buffer = buf
-            st.success("Image saved to memory buffer.")
         
         # Download button
         st.download_button(
