@@ -3,3 +3,4 @@ git+https://github.com/CyprienBouton/RecoTwix.git@add_grappa
 dash == 3.0.4
 pandas == 2.3.0
 streamlit == 1.45.1
+dicom2nifti == 2.6.1
