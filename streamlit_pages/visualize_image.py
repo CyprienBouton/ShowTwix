@@ -144,7 +144,28 @@ def obtain_image():
             img_nii = convert_dicoms_to_nifti_object(uploaded_files)
 
     
-    # Step 5: If reconstruction selected, process accordingly
+    # Step 5: If SENSE reconstruction selected, process accordingly
+    elif choice == "SENSE reconstruction with POCS":
+        st.success(f"Selected reconstruction method: {choice}")
+        # Call your reconstruction function here
+        coil_sens_methods = [
+            "Select an option...",
+            "caldir",
+            "espirit",
+        ]
+        method_sensitivity = st.selectbox("Choose coil sensitivity method:", coil_sens_methods)
+        if method_sensitivity == "Select an option...":
+            st.warning("Please choose a coil sensitivity method to continue.")
+            st.stop()
+        with st.spinner("Reconstructing image..."):
+            with open("uploaded_file.dat", "wb") as f:
+                f.write(st.session_state.buffer_file)
+            reco = recotwix("uploaded_file.dat")
+            reco.runReco(method_sensitivity=method_sensitivity)
+            img_nii = reco.make_nifti(reco.img.abs())
+            os.remove("uploaded_file.dat")
+            
+    # Step 6: Direct reconstruction
     else:
         st.success(f"Selected reconstruction method: {choice}")
         # Call your reconstruction function here
@@ -164,7 +185,7 @@ def obtain_image():
 
 
 def display_slice(slice_2d):
-     """Display image slice and allow window-level/width adjustment."""
+    """Display image slice and allow window-level/width adjustment."""
     # Defaults values
     if "window_level" not in st.session_state:
         st.session_state.window_level = .3
@@ -265,3 +286,6 @@ def visualize_image():
             file_name="exported_image.png",
             mime="image/png",
         )
+        
+        if st.button("Reload image"):
+            st.session_state.img_nii = None
