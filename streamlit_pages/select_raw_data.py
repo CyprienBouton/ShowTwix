@@ -25,6 +25,6 @@ def select_raw_data():
                 os.remove("uploaded_file.dat")
             except Exception as e:
                 st.error(f"Failed to read twix file: {e}")
-    else:
+    elif 'file' not in st.session_state:
         st.info("Please upload a .dat Twix file to start.")
 
