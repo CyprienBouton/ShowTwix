@@ -25,9 +25,10 @@ def plot_signals_streamlit(pmu, keys=None, show_trigger=True):
         colors[key] = palette[i]
         
     for key in keys:
+        y_normalized = (pmu.signal[key] - pmu.signal[key].min())/(pmu.signal[key].max() - pmu.signal[key].min()+1e-8)
         fig.add_trace(go.Scatter(
             x=convert_timestamp_seconds(pmu.timestamp[key]),
-            y=pmu.signal[key],
+            y=y_normalized,
             mode='lines',
             name=key,
             line=dict(color=colors[key])
