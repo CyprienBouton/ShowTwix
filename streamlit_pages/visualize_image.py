@@ -256,6 +256,9 @@ def get_slice_from_nii(img_nii):
 
 def visualize_image():
     st.header("🫀Visualize image")
+    if 'twix' not in st.session_state or 'df' not in st.session_state:
+        st.error("❗ Please upload a raw data file  first.")
+        return
     
     if st.session_state.img_nii is None:
         # Get image either reconstruct raw data or ask png
