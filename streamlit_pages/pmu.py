@@ -61,7 +61,7 @@ def plot_signals_streamlit(pmu, keys=None, show_trigger=True):
                 name=f'{key} Trigger',
                 showlegend=False,
             ))
-        fig.update_yaxes(range=[-0.2, 1.1], title='signal (with triggers)')
+        fig.update_yaxes(range=[-0.2, 1.1], title='Normalized signal (with triggers)')
 
     st.plotly_chart(fig, use_container_width=True)
 
