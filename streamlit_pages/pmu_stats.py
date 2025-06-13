@@ -11,11 +11,14 @@ def udpate_trigger_method():
         trigger_method=st.session_state.trigger_method
     )
 
-def plot_hist(df):
+def plot_hist(df, rd_min=None, rd_max=None):
     fig = go.Figure()
     fig.add_trace(go.Histogram(x=df.RD, nbinsx=50))
     fig.update_layout(
-        xaxis=dict(title="Recovery duration (seconds)"),
+        xaxis=dict(
+            title="Recovery duration (seconds)",
+            range=[rd_min, rd_max] if rd_min is not None and rd_max is not None else None
+        ),
         yaxis=dict(title="Number of occurrences"),
         height=800, width=800,
         template='simple_white'
@@ -54,5 +57,14 @@ def pmu_stats():
         st.error(f"❗ Choose another trigger method. Selected: '{selected}'.")
         return
 
-    fig = plot_hist(df)
+    # Sidebar controls for scaling
+    scale_hist = st.sidebar.checkbox("Scale x-axis (RD)", value=True)
+
+    if scale_hist:
+        rd_min = st.sidebar.slider("RD Min (s)", 0.0, 5.0, 0.4, step=0.1)
+        rd_max = st.sidebar.slider("RD Max (s)", 0.5, 10.0, 2.0, step=0.1)
+    else:
+        rd_min, rd_max = None, None
+        
+    fig = plot_hist(df, rd_min, rd_max)
     st.plotly_chart(fig, use_container_width=True)
