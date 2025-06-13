@@ -90,7 +90,7 @@ def kspace_recovery_durations():
     marker_size = st.sidebar.slider("Marker Size", 2, 10, 6)
     show_flags = st.sidebar.checkbox("Show Flags", value=False)
 
-    scale_colorbar = st.sidebar.checkbox("Scale colorbar")
+    scale_colorbar = st.sidebar.checkbox("Scale colorbar", value=True)
 
     if scale_colorbar:
         cmin = st.sidebar.slider("Colorbar Min (s)", 0.0, 5.0, 0.4, step=0.1)
