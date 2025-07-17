@@ -1,9 +1,10 @@
 import streamlit as st
-import time
+import io
 import plotly.graph_objects as go
 import numpy as np
+import pandas as pd
 
-from utils.twix_dataframe import build_line_dataframe
+from utils.twix_dataframe import build_line_dataframe, get_trigger_timing
 
 def udpate_trigger_method():
     st.session_state.df = build_line_dataframe(
@@ -101,3 +102,15 @@ def kspace_recovery_durations():
 
     fig = plot_fig(df, marker_size, is3D, show_flags, cmin, cmax)
     st.plotly_chart(fig, use_container_width=True)
+
+    # Download RD button
+    with io.StringIO() as buffer:
+        list_RRs = np.diff(get_trigger_timing(twix, selected))  # Ensure trigger timing is calculated
+        rr_series = pd.Series(list_RRs, name="RR_intervals")
+        rr_series.to_csv(buffer, index=False, header=True)
+        st.download_button(
+            label="📥 Download Recovery Durations (RD)",
+            data=buffer.getvalue(),
+            file_name="recovery_durations.csv",
+            mime="text/csv"
+        )
