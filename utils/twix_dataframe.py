@@ -19,8 +19,6 @@ def build_line_dataframe(twix, trigger_method='ECG1'):
     
     # Add recovery durations if available
     if 'pmu' in twix[-1] and any(twix[-1]['pmu'].trigger[trigger_method]):
-        pmu = twix[-1]['pmu']
-        mask = pmu.trigger[trigger_method]>0
         trigger_timing = get_trigger_timing(twix, trigger_method)
         idxs_sorted = np.searchsorted(trigger_timing, timestamps)
         RDs = np.diff(trigger_timing)[idxs_sorted-2] # last trigger - previous trigger
