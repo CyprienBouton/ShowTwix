@@ -3,8 +3,10 @@ import numpy as np
 import plotly.graph_objects as go
 import plotly.express as px  # For color palette
 
-def convert_timestamp_seconds(timestamp):
-    return (timestamp - timestamp[0]) * 2.5e-3  # convert to seconds
+def convert_timestamp_seconds(timestamp, starttime=None):
+    if starttime is not None:
+        timestamp = timestamp - starttime
+    return timestamp * 2.5e-3  # convert to seconds
 
 def plot_signals_streamlit(pmu, keys=None, show_trigger=True):
     fig = go.Figure()
@@ -27,7 +29,7 @@ def plot_signals_streamlit(pmu, keys=None, show_trigger=True):
     for key in keys:
         y_normalized = (pmu.signal[key] - pmu.signal[key].min())/(pmu.signal[key].max() - pmu.signal[key].min()+1e-8)
         fig.add_trace(go.Scatter(
-            x=convert_timestamp_seconds(pmu.timestamp[key]),
+            x=convert_timestamp_seconds(pmu.timestamp[key], starttime=pmu.timestamp[key][0]),
             y=y_normalized,
             mode='lines',
             name=key,
@@ -51,16 +53,19 @@ def plot_signals_streamlit(pmu, keys=None, show_trigger=True):
     if show_trigger and trig_keys:
         for key in trig_keys:
             trigger_times = convert_timestamp_seconds(
-                pmu.timestamp_trigger[key][pmu.trigger[key] > 0]
+                pmu.timestamp_trigger[key][pmu.trigger[key] > 0], starttime=pmu.timestamp[key][0]
             )
-            fig.add_trace(go.Scatter(
-                x=trigger_times,
-                y=[-0.1] * len(trigger_times),
-                mode='markers',
-                marker=dict(symbol='line-ns-open', size=12, color=colors[key]),
-                name=f'{key} Trigger',
-                showlegend=False,
-            ))
+            bg_color = fig.layout.plot_bgcolor  # Get the background color of the plot
+            # Choose the line color based on the background color (light or dark theme)
+            line_color = 'black' if bg_color in ['white', 'lightgray', 'rgba(255, 255, 255, 0)'] else 'white'
+            for t in trigger_times:
+                fig.add_trace(go.Scatter(
+                    x=[t, t],
+                    y=[0, 1],
+                    mode='lines',
+                    line=dict(color=line_color, width=2),
+                    showlegend=False,
+                ))
         fig.update_yaxes(range=[-0.2, 1.1], title='Normalized signal (with triggers)')
 
     st.plotly_chart(fig, use_container_width=True)
