@@ -64,7 +64,7 @@ def pmu_stats():
     default_keys = [
         key for key in pmu_data.signal 
         if not key.startswith('LEARN_') 
-        and np.ptp(pmu_data.signal[key])>0
+        and np.any(pmu_data.trigger[key])
     ]
     selected = st.selectbox(
         "Choose a trigger method:", 
@@ -80,7 +80,7 @@ def pmu_stats():
     # Sidebar controls for scaling
     scale_hist = st.sidebar.checkbox("Scale x-axis (RD)", value=True)
 
-    if scale_hist:
+    if scale_hist or np.ptp(df.RD)==0: # if all RD values are the same, allow scaling to visualize the histogram
         rd_min = st.sidebar.slider("RD Min (s)", 0.0, 5.0, 0.4, step=0.1)
         rd_max = st.sidebar.slider("RD Max (s)", 0.5, 10.0, 2.0, step=0.1)
     else:
