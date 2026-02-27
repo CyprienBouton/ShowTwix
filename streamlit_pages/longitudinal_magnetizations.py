@@ -106,6 +106,8 @@ def longitudinal_magnetizations():
     trigger_times = twix['pmu'].timestamp_trigger[trigger_selected][mask]
     trigger_times = (trigger_times - twix['pmu'].timestamp_trigger[trigger_selected][0])*2.5e-3 # convert to seconds
     readout_times = df.Time.values
+    trigger_to_inversion_duration = min([readout_times[0]-t for t in trigger_times if t<readout_times[0]])-TI
+    trigger_times += trigger_to_inversion_duration
     
     default_flip_angle = twix['hdr']['Meas']['adFlipAngleDegree'][0]
         
