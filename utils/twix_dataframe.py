@@ -3,12 +3,13 @@ import pandas as pd
 
 import plotly.graph_objs as go
 
-def build_line_dataframe(twix, trigger_method='ECG1'):
+def build_line_dataframe(twix, trigger_method='ECG1', include_patrefscan=True):
     """ Build a DataFrame containing line, partition, slice, time, flags, and recovery duration (if available)
     from the given twix data structure.
     Parameters:
     - twix: The twix data structure containing the raw data and PMU information.
     - trigger_method: The method used to trigger the acquisition (default is 'ECG1').
+    - include_patrefscan: Whether to include PATREFSCAN scans in the DataFrame (default is True).
     Returns:
     - A pandas DataFrame with columns: 'Lin', 'Par', 'Sli', 'Time', 'Flags', and optionally 'RD' (Recovery Duration).
     """
@@ -18,6 +19,8 @@ def build_line_dataframe(twix, trigger_method='ECG1'):
     else:
         start_time = twix['mdb'][0].mdh.TimeStamp
     mdbs = [mdb for mdb in twix['mdb'] if mdb.is_image_scan()]
+    if include_patrefscan:
+        mdbs += [mdb for mdb in twix['mdb'] if not mdb.is_image_scan() and mdb.is_flag_set('PATREFSCAN')]
     timestamps = np.array([mdb.mdh.TimeStamp for mdb in mdbs])
     timestamps = (timestamps - start_time) * 2.5e-3  # convert to seconds
         

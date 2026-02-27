@@ -9,7 +9,8 @@ from utils.twix_dataframe import build_line_dataframe, get_trigger_timing
 def udpate_trigger_method():
     st.session_state.df = build_line_dataframe(
         st.session_state.twix, 
-        trigger_method=st.session_state.trigger_method
+        trigger_method=st.session_state.trigger_method,
+        include_patrefscan=not st.session_state.recotwix.prot.isRefScanSeparate,
     )
 
 def plot_fig(df, marker_size, is3D, show_flags, cmin, cmax):

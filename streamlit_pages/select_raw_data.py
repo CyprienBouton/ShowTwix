@@ -23,7 +23,7 @@ def select_raw_data():
                 st.session_state.recotwix = reco
                 st.session_state.twix = reco.twixobj
                 st.success("File loaded successfully!")
-                st.session_state.df = build_line_dataframe(reco.twixobj)
+                st.session_state.df = build_line_dataframe(reco.twixobj, include_patrefscan=not reco.prot.isRefScanSeparate)
                 st.session_state.file = os.path.basename(uploaded_file.name)
                 st.session_state.img_nii = None
                 st.session_state.image_buffer = None

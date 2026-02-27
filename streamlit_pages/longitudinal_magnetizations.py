@@ -21,7 +21,8 @@ from utils.optimized_pulse import series_Mz_1FA_SPPRESS, find_corrupted_shot, fi
 def udpate_trigger_method():
     st.session_state.df = build_line_dataframe(
         st.session_state.twix, 
-        trigger_method=st.session_state.trigger_method
+        trigger_method=st.session_state.trigger_method,
+        include_patrefscan=not st.session_state.recotwix.prot.isRefScanSeparate,
     )
 
 def convert_timestamp_seconds(timestamp, starttime=None):
