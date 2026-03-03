@@ -19,7 +19,7 @@ def plot_hist(df, rd_min=None, rd_max=None):
     else:
         x_range = df.RD.max() - df.RD.min()
 
-    nbinsx = int(50 * (df.RD.max() - df.RD.min())/ x_range)
+    nbinsx = int(max(round(50 * (df.RD.max() - df.RD.min())/ x_range), 2))
     
     # Adjusting the number of bins to control bar width
     fig.add_trace(go.Histogram(
@@ -30,14 +30,14 @@ def plot_hist(df, rd_min=None, rd_max=None):
     fig.update_layout(
         xaxis=dict(
             title="Recovery duration (seconds)",
-            title_font=dict(size=20),  # Title font size
-            tickfont=dict(size=20),    # Tick label font size
+            title_font=dict(size=35),  # Title font size
+            tickfont=dict(size=30),    # Tick label font size
             range=[rd_min, rd_max] if rd_min is not None and rd_max is not None else None
         ),
         yaxis=dict(
             title="Number of occurrences",
-            title_font=dict(size=20),  # Title font size
-            tickfont=dict(size=20)     # Tick label font size
+            title_font=dict(size=35),  # Title font size
+            tickfont=dict(size=30)     # Tick label font size
         ),
         height=800, width=800,
         template='simple_white',
@@ -82,8 +82,8 @@ def pmu_stats():
     scale_hist = st.sidebar.checkbox("Scale x-axis (RD)", value=True)
 
     if scale_hist or np.ptp(df.RD)==0: # if all RD values are the same, allow scaling to visualize the histogram
-        rd_min = st.sidebar.slider("RD Min (s)", 0.0, 5.0, 0.4, step=0.1)
-        rd_max = st.sidebar.slider("RD Max (s)", 0.5, 10.0, 2.0, step=0.1)
+        rd_min = st.sidebar.slider("RD Min (s)", 0.0, 5.0, 0.5, step=0.1)
+        rd_max = st.sidebar.slider("RD Max (s)", 0.5, 10.0, 1.5, step=0.1)
     else:
         rd_min, rd_max = None, None
         
