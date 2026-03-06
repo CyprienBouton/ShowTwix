@@ -205,9 +205,9 @@ def series_Mz_1FA_SPPRESS(
     all_times.append(0.)
     readout_times_iter = iter(readout_times)
     current_readout_time = next(readout_times_iter)
-    trigger_times = np.concatenate([ trigger_times, [readout_times.max()+time_step] ]) # add a trigger time after the last readout time to end the simulation after the last readout
-    min_delta_trigger = get_min_delta_triggers(readout_times, trigger_times)
-    nb_segments = get_segments(trigger_times, readout_times)
+    next_trigger_times = np.concatenate([ trigger_times[1:], [readout_times.max()+time_step] ]) # add a trigger time after the last readout time to end the simulation after the last readout
+    min_delta_trigger = get_min_delta_triggers(readout_times, next_trigger_times)
+    nb_segments = get_segments(next_trigger_times, readout_times)
     if reordering=='Centric':
         center_shot = 0
     elif reordering=='Linear':
@@ -226,8 +226,11 @@ def series_Mz_1FA_SPPRESS(
         current_alpha_b = next(alpha_b_iter)
     
     Mz = 1 # M0
+    t = trigger_times[0]
+    all_Mz.append(Mz)
+    all_times.append(t)
     
-    for i, next_trigger_time in enumerate(trigger_times):
+    for i, next_trigger_time in enumerate(next_trigger_times):
         SPPRESS_not_executed = True
         t_last_RF = t
         Mz = -Mz # inversion pulse
@@ -266,7 +269,7 @@ def series_Mz_1FA_SPPRESS(
                     all_Mz_center.append(Mz)
                     all_times_center.append(t)
                 seg_number+=1
-            elif t - t_last_RF > min_delta_trigger and do_SPPRESS and SPPRESS_not_executed and i>0:
+            elif t - t_last_RF > min_delta_trigger and do_SPPRESS and SPPRESS_not_executed:
                 Mz = compute_relaxation(0, t-t_last_RF- min_delta_trigger, T1) # relaxation after SPPRESS
                 SPPRESS_not_executed = False
             else:
